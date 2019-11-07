@@ -1,4 +1,4 @@
-\documentclass{beamer}
+\documentclass[aspectratio=169]{beamer}
 \usepackage{hyperref}
 \usepackage{listings}
 % \usepackage{fontspec}
@@ -77,14 +77,16 @@
 \subtitle{Focusing on GDB}
 \author{Richard Morrill}
 \institute{Fordham University CS Society}
-\logo{\includegraphics[width=3cm]{Images/css_logo_color.png}}
+\logo{\includegraphics[width=2cm]{Images/css_logo_color.png}}
 \date{Thursday, Novemeber 7th 2019}
 
+\section{}
 \begin{document}
 \begin{frame}
 \titlepage
 \end{frame}
 
+\section{Background Info}
 \begin{frame}
     \frametitle{Intro}
 
@@ -97,13 +99,13 @@
 
 \begin{frame}
     \frametitle{Setup}
-    \framesubtitle{Just get everything to run}
+    \framesubtitle{Let's get all the tech support out of the way.}
     \begin{itemize}
         \item Open Instructions Doc: \url{http://bit.ly/GDBSetup}
         \item Write / Compile a Simple C/C++ Program
         \item Run It, Make Sure it Works
         \item Run \code{\$ gdb <your executable name>}
-        \item Run \code{(gdb) run}
+        \item Run \code{(gdb)\footnote[frame]{This means you run the command inside GDB} run}
     \end{itemize}
 
 \end{frame}
@@ -139,12 +141,14 @@ int @!\fn{doSomething}!@(int* arr, int len) {
 #include <stdio.h>
     \end{lstlisting}
     \begin{itemize}
+        \pause
         \item And this\dots
     \end{itemize}
     \begin{lstlisting}[numbers=none]
 @!\fn{printf}!@("some random variable: %d", var);
     \end{lstlisting}
     \begin{itemize}
+        \pause
         \item My code is full of print statements
         \item My terminal is flooded with info
     \end{itemize}
@@ -169,11 +173,12 @@ int @!\fn{doSomething}!@(int* arr, int len) {
     \begin{itemize}
         \item Stop my program: breakpoints, watchpoints, on exceptions
         \item See values of all variables (and registers!)
-        \item Follow call stack back up
+        \item Follow \underline{call stack} back up\footnote[frame]{Underlined terms are things not everybody will know, please ask me to explain them.}
         \item Play ``what if?''
     \end{itemize}
 
 \end{frame}
+\section{Using GDB}
 \begin{frame}
     \frametitle{Essential Commands}
     \framesubtitle{I forget them constantly and so will you}
@@ -200,9 +205,11 @@ int @!\fn{doSomething}!@(int* arr, int len) {
 
     \begin{itemize}
         \item Navigate to the \code{Basic\_Usage} folder
-        \item Compile with \code{\$~gcc~hasfunctions.c~-lm~-o~hasfunctions}
-        \item Run it (It'll Crash)
-        \item Run \code{}
+        \item Compile with \code{\$~gcc~hasfunctions.c~-lm~-o~hasfunctions}\footnote[frame]{Anybody need me to explain what the arguments are doing?}
+        \item Run it with 2 int \underline{arguments}\footnote[frame]{Anybody not know what that means?}
+        \pause
+        \item 90\% chance you'll get a segfault
+        \item Run it in gdb
     \end{itemize}
 
 \end{frame}
