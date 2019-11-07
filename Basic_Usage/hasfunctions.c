@@ -8,17 +8,6 @@ double doesSomething(int aVar) {
     return pow(aVar % 21, 2);
 }
 
-int* doesSomethingElse(double first, int count) {
-    int* myArr = malloc(count * sizeof(int));
-    double trail;
-    for(int i = 0; i < count; ++i) {
-        myArr[i] = trail - first * 2;
-        trail = myArr[i] + first * 3 - floor(first);
-        int g = goodNumber(trail);
-        trail = max(g, trail);
-    }
-}
-
 int goodNumber(int a) {
     int b = a % 2, c = a % 3, d = 0;
     for (int i = 0; i < a; ++i) {
@@ -27,6 +16,17 @@ int goodNumber(int a) {
     }
     return d;
 }
+int* doesSomethingElse(double first, int count) {
+    int* myArr = malloc(count * sizeof(int));
+    double trail;
+    for(int i = 0; i < count; ++i) {
+        myArr[i] = trail - first * 2;
+        trail = myArr[i] + first * 3 - floor(first);
+        int g = goodNumber(trail);
+        trail = g > trail ? g : trail;
+    }
+}
+
 
 int main(int argc, char** argv) {
     if (argc != 3) {
