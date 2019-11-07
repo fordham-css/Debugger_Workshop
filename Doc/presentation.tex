@@ -1,0 +1,209 @@
+\documentclass{beamer}
+\usepackage{hyperref}
+\usepackage{listings}
+% \usepackage{fontspec}
+% \setmonofont{Consolas}
+
+\definecolor{background}{RGB}{39, 40, 34}
+\definecolor{string}{RGB}{230, 219, 116}
+\definecolor{comment}{RGB}{117, 113, 94}
+\definecolor{normal}{RGB}{248, 248, 242}
+\definecolor{identifier}{RGB}{166, 226, 46}
+\definecolor{keyword}{HTML}{F92672}
+\definecolor{numbers}{HTML}{AE81FF}
+\definecolor{types}{HTML}{66D9EF}
+% \lstset{
+%   language=C++,                			% choose the language of the code
+%   numbers=left,                  		% where to put the line-numbers
+%   stepnumber=1,                   		% the step between two line-numbers.        
+%   numbersep=5pt,                  		% how far the line-numbers are from the code
+%   numberstyle=\tiny\color{normal}\ttfamily,
+%   showspaces=false,               		% show spaces adding particular underscores
+%   showstringspaces=false,         		% underline spaces within strings
+%   showtabs=false,                 		% show tabs within strings adding particular underscores
+%   tabsize=4,                      		% sets default tabsize to 2 spaces
+%   captionpos=b,                   		% sets the caption-position to bottom
+%   breaklines=true,                		% sets automatic line breaking
+%   breakatnormalspace=true,         		% sets if automatic breaks should only happen at normalspace
+%   basicstyle=\ttfamily,
+%   keywordstyle=\color{identifier}\ttfamily,
+%   stringstyle=\color{string}\ttfamily,
+%   commentstyle=\color{comment}\ttfamily,
+%   morecomment=[l][\color{string}]{\#}
+% }
+
+\lstset{
+    language=C,
+    tabsize=4, % tab space width
+    showstringspaces=false, % don't mark spaces in strings
+    numbers=left, % display line numbers on the left
+    basicstyle=\ttfamily,
+    numberstyle=\color{comment}\ttfamily, % Line numbers
+    commentstyle=\color{comment}\ttfamily, % comment color
+    otherkeywords={>,<,-,!,=,~}, % Color operators too
+    morekeywords={>,<,-,!,=,~},
+    keywordstyle=\color{keyword}\ttfamily, % keyword color
+    stringstyle=\color{string}\ttfamily, % string color
+    morecomment=[l][\color{keyword}]{\#},
+    emph={int,char,long,float,double,unsigned},
+    emphstyle={\color{types}\ttfamily\textit},
+    escapeinside={@!}{!@}
+}
+
+\newcommand{\code}{\texttt}
+\newcommand{\fn}{\color{identifier}}
+
+\usetheme{Warsaw}
+\setbeamercolor{normal text}{fg=normal,bg=background}
+\setbeamercolor{structure}{fg=normal}
+
+\setbeamercolor{alerted text}{fg=red!85!black}
+
+\setbeamercolor{item projected}{use=item,fg=background,bg=item.fg!35}
+
+\setbeamercolor*{palette primary}{use=structure,fg=structure.fg}
+\setbeamercolor*{palette secondary}{use=structure,fg=structure.fg!95!black}
+\setbeamercolor*{palette tertiary}{use=structure,fg=structure.fg!90!black}
+\setbeamercolor*{palette quaternary}{use=structure,fg=structure.fg!95!black,bg=black!80}
+
+\setbeamercolor*{framesubtitle}{fg=normal}
+
+\setbeamercolor*{block title}{parent=structure,bg=background}
+\setbeamercolor*{block body}{fg=black,bg=background}
+\setbeamercolor*{block title alerted}{parent=alerted text,bg=background}
+\setbeamercolor*{block title example}{parent=example text,bg=background}
+
+\title{How to Use a Debugger}
+\subtitle{Focusing on GDB}
+\author{Richard Morrill}
+\institute{Fordham University CS Society}
+\logo{\includegraphics[width=3cm]{Images/css_logo_color.png}}
+\date{Thursday, Novemeber 7th 2019}
+
+\begin{document}
+\begin{frame}
+\titlepage
+\end{frame}
+
+\begin{frame}
+    \frametitle{Intro}
+
+    \begin{itemize}
+        \item WTF is a debugger anyways?
+        \item Why would I want one?
+        \item How the heck do I set all this crap up?
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Setup}
+    \framesubtitle{Just get everything to run}
+    \begin{itemize}
+        \item Open Instructions Doc: \url{http://bit.ly/GDBSetup}
+        \item Write / Compile a Simple C/C++ Program
+        \item Run It, Make Sure it Works
+        \item Run \code{\$ gdb <your executable name>}
+        \item Run \code{(gdb) run}
+    \end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{The Problem a Debugger Solves}
+    % do_something
+    \begin{lstlisting}
+int @!\fn{doSomething}!@(int* arr, int len) {
+    for (int i = 0; i < len; ++i) {
+        if (arr[i] < 4) {
+            arr[i] = @!\fn{complexFunction}!@(arr[i]);
+        }
+    }
+    for(int i = 0; i < len; ++i) {
+        if (@!\fn{simpleFunction}!@(arr[i])) {
+            return arr[i];
+        } else {
+            arr[i] = @!\fn{doSomething}!@(arr, len);
+        }
+    }
+}
+    \end{lstlisting}
+
+\end{frame}
+\begin{frame}[fragile]
+    \frametitle{The Problem a Debugger Solves, Cont.}
+    \begin{itemize}
+        \item I want to know where the program is crashing
+        \item So I do this:
+    \end{itemize}
+    \begin{lstlisting}[numbers=none]
+#include <stdio.h>
+    \end{lstlisting}
+    \begin{itemize}
+        \item And this\dots
+    \end{itemize}
+    \begin{lstlisting}[numbers=none]
+@!\fn{printf}!@("some random variable: %d", var);
+    \end{lstlisting}
+    \begin{itemize}
+        \item My code is full of print statements
+        \item My terminal is flooded with info
+    \end{itemize}
+
+
+\end{frame}
+\begin{frame}
+    \frametitle{What I Want to Do}
+
+    \begin{itemize}
+        \item Stop my program anywhere I want
+        \item See what all the variables are
+        \item See how they got that way
+        \item If it crashes, see what was going on when it crashed
+        \item Not need to delete all those stupid print statements afterward
+    \end{itemize}
+
+\end{frame}
+\begin{frame}
+    \frametitle{What a Debugger Can Do for Me}
+
+    \begin{itemize}
+        \item Stop my program: breakpoints, watchpoints, on exceptions
+        \item See values of all variables (and registers!)
+        \item Follow call stack back up
+        \item Play ``what if?''
+    \end{itemize}
+
+\end{frame}
+\begin{frame}
+    \frametitle{Essential Commands}
+    \framesubtitle{I forget them constantly and so will you}
+    \begin{itemize}
+        \item Open this: \url{http://bit.ly/GDBCheatSheet}
+        \item Essential Commands:
+        \begin{itemize}
+            \item \code{\$ gdb EXECUTABLE} -- start debugging
+            \item \code{(gdb) run ARGS\dots} -- run your program inside debugger
+            \item \code{(gdb) break [FUNCTION|FILE:LINE]} -- set \underline{breakpoint}
+            \item \code{(gdb) step} -- \underline{single step}
+            \item \code{(gdb) print EXPRESSION} -- print value
+            \item \code{(gdb) kill} -- start over
+            \item \code{(gdb) quit} -- exit
+            \item \code{(gdb) continue} -- start running again
+        \end{itemize}
+    \end{itemize}
+    
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Time for Some Real Debugging}
+
+    \begin{itemize}
+        \item Navigate to the \code{Basic\_Usage} folder
+        \item Compile with \code{\$~gcc~hasfunctions.c~-lm~-o~hasfunctions}
+        \item Run it (It'll Crash)
+        \item Run \code{}
+    \end{itemize}
+
+\end{frame}
+\end{document}

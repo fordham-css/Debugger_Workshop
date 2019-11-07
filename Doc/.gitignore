@@ -1,0 +1,8 @@
+*
+!.gitignore
+!*.tex
+!Images
+!Images/*
+!*.sty
+!*.bib
+!LICENSE
