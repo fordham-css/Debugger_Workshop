@@ -331,7 +331,7 @@ int* @!\fn{doesSomethingElse}!@(double first, int count) {
 
 \end{frame}
 \section{Extra Content}
-\begin{frame}[fragile]
+\begin{frame}
     \frametitle{Dissasembly}
     \begin{itemize}
         \item Find out what your computer is \textit{really} doing
@@ -343,6 +343,33 @@ int* @!\fn{doesSomethingElse}!@(double first, int count) {
         \pause
         \item Disassembly is useful when you don't have the source code but you need to figure out how something works.
         \item May be a topic for a future event.
+    \end{itemize}
+\end{frame}
+\begin{frame}
+    \frametitle{Syscalls}
+    \begin{itemize}
+        \item Requests your program makes to the OS
+        \item Knowing which calls it's making and when can be very useful when dealing with files \& networking
+        \item Go to \code{Syscalls}, compile and run \code{makesSyscalls.cpp}
+        \pause
+        \item Wow, look at all that gibberish!
+        \item Pay attention to \code{openat, read, write}
+        \item Notice how there's only one read call, why? \pause -- Compiler and/or OS optimization
+    \end{itemize}
+\end{frame}
+\begin{frame}
+    \frametitle{Debugging in VsCode}
+
+    \begin{itemize}
+        \item On linux, VsCode's debugger actually uses GDB behind the scenes
+        \item Watch as I set it up and use it
+    \end{itemize}
+\end{frame}
+\section{}
+\begin{frame}
+    \frametitle{Thanks for Coming}
+    \begin{itemize}
+        \item Next Week: Research Meeting
     \end{itemize}
 \end{frame}
 \end{document}
