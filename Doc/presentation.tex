@@ -1,6 +1,7 @@
 \documentclass[aspectratio=169]{beamer}
 \usepackage{hyperref}
 \usepackage{listings}
+
 % \usepackage{fontspec}
 % \setmonofont{Consolas}
 
@@ -12,25 +13,7 @@
 \definecolor{keyword}{HTML}{F92672}
 \definecolor{numbers}{HTML}{AE81FF}
 \definecolor{types}{HTML}{66D9EF}
-% \lstset{
-%   language=C++,                			% choose the language of the code
-%   numbers=left,                  		% where to put the line-numbers
-%   stepnumber=1,                   		% the step between two line-numbers.        
-%   numbersep=5pt,                  		% how far the line-numbers are from the code
-%   numberstyle=\tiny\color{normal}\ttfamily,
-%   showspaces=false,               		% show spaces adding particular underscores
-%   showstringspaces=false,         		% underline spaces within strings
-%   showtabs=false,                 		% show tabs within strings adding particular underscores
-%   tabsize=4,                      		% sets default tabsize to 2 spaces
-%   captionpos=b,                   		% sets the caption-position to bottom
-%   breaklines=true,                		% sets automatic line breaking
-%   breakatnormalspace=true,         		% sets if automatic breaks should only happen at normalspace
-%   basicstyle=\ttfamily,
-%   keywordstyle=\color{identifier}\ttfamily,
-%   stringstyle=\color{string}\ttfamily,
-%   commentstyle=\color{comment}\ttfamily,
-%   morecomment=[l][\color{string}]{\#}
-% }
+
 
 \lstset{
     language=C,
@@ -45,15 +28,35 @@
     keywordstyle=\color{keyword}\ttfamily, % keyword color
     stringstyle=\color{string}\ttfamily, % string color
     morecomment=[l][\color{keyword}]{\#},
-    emph={int,char,long,float,double,unsigned},
+    emph={int,char,long,float,double,unsigned,namespace,typename},
     emphstyle={\color{types}\ttfamily\textit},
-    escapeinside={@!}{!@}
+    escapeinside={@!}{!@},
+    captionpos=b
 }
-
+% \lstdefinelanguage
+%    [x64]{Assembler}     % add a "x64" dialect of Assembler
+%    [x86masm]{Assembler} % based on the "x86masm" dialect
+%    % with these extra keywords:
+%    {morekeywords={CDQE,CQO,CMPSQ,CMPXCHG16B,JRCXZ,LODSQ,MOVSXD, %
+%                   POPFQ,PUSHFQ,SCASQ,STOSQ,IRETQ,RDTSCP,SWAPGS, %
+%                   rax,rdx,rcx,rbx,rsi,rdi,rsp,rbp, %
+%                   r8,r8d,r8w,r8b,r9,r9d,r9w,r9b, %
+%                   r10,r10d,r10w,r10b,r11,r11d,r11w,r11b, %
+%                   r12,r12d,r12w,r12b,r13,r13d,r13w,r13b, %
+%                   r14,r14d,r14w,r14b,r15,r15d,r15w,r15b}} % etc
 \newcommand{\code}{\texttt}
 \newcommand{\fn}{\color{identifier}}
 
 \usetheme{Warsaw}
+
+\addtobeamertemplate{footnote}{\vspace{-6pt}\advance\hsize-0.5cm}{\vspace{6pt}}
+\makeatletter
+% Alternative A: footnote rule
+\renewcommand*{\footnoterule}{\kern -3pt \hrule \@width 2in \kern 8.6pt}
+% Alternative B: no footnote rule
+% \renewcommand*{\footnoterule}{\kern 6pt}
+\makeatother
+
 \setbeamercolor{normal text}{fg=normal,bg=background}
 \setbeamercolor{structure}{fg=normal}
 
@@ -113,7 +116,7 @@
 \begin{frame}[fragile]
     \frametitle{The Problem a Debugger Solves}
     % do_something
-    \begin{lstlisting}
+    \begin{lstlisting}[language=C]
 int @!\fn{doSomething}!@(int* arr, int len) {
     for (int i = 0; i < len; ++i) {
         if (arr[i] < 4) {
@@ -178,6 +181,18 @@ int @!\fn{doSomething}!@(int* arr, int len) {
     \end{itemize}
 
 \end{frame}
+\begin{frame}
+    \frametitle{Why Are We Doing This the Hard Way?}
+    \begin{itemize}
+        \item Builds character
+        \pause
+        \item Forces you to be intentional
+        \item Cross-platform skills
+        \item Many features hidden / not available in GUI
+    \end{itemize}
+    
+
+\end{frame}
 \section{Using GDB}
 \begin{frame}
     \frametitle{Essential Commands}
@@ -189,11 +204,14 @@ int @!\fn{doSomething}!@(int* arr, int len) {
             \item \code{\$ gdb EXECUTABLE} -- start debugging
             \item \code{(gdb) run ARGS\dots} -- run your program inside debugger
             \item \code{(gdb) break [FUNCTION|FILE:LINE]} -- set \underline{breakpoint}
+            \item \code{(gdb) watch EXPRESSION} -- set \underline{watchpoint}
             \item \code{(gdb) step} -- \underline{single step}
             \item \code{(gdb) print EXPRESSION} -- print value
             \item \code{(gdb) kill} -- start over
             \item \code{(gdb) quit} -- exit
             \item \code{(gdb) continue} -- start running again
+            \item \code{(gdb) [up|down]} -- traverse the call stack
+            \item \code{(gdb) clear [FUNCTION|FILE:LINE]} -- remove watchpoint / breakpoint
         \end{itemize}
     \end{itemize}
     
@@ -212,5 +230,119 @@ int @!\fn{doSomething}!@(int* arr, int len) {
         \item Run it in gdb
     \end{itemize}
 
+\end{frame}
+\begin{frame}[fragile]
+    \frametitle{Set a Breakpoint}
+    \begin{lstlisting}[firstnumber=11,title={hasfunctions.c}]
+int* @!\fn{doesSomethingElse}!@(double first, int count) {
+    int* myArr = @!\fn{malloc}!@(count * sizeof(int));
+    double trail;
+    for(int i = 0; i < count; ++i) {
+        myArr[i] = trail - first * 2;
+        trail = myArr[i] + first * 3 - @!\fn{floor}!@(first);
+    }
+}
+    \end{lstlisting}
+    \begin{itemize}
+        \item I want to stop every time the loop goes around
+        \pause
+        \item Answer: \code{(gdb) break hasfunctions.c:15}
+        \item Breakpoints stop \textbf{before} executing the line
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{More About Breakpoints}
+
+    \begin{itemize}
+        \item On x86 CPUs, very fast
+        \item Great when you need to know what is going on at any given point in code
+        \pause
+        \item Not so great when you don't actually know where that point is
+        \item Potential Solutions:
+        \begin{itemize}
+            \pause
+            \item Set a shit-ton of breakpoints
+            \item Use accessor / mutator functions
+            \item Watchpoints
+        \end{itemize}
+    \end{itemize}
+
+\end{frame}
+\begin{frame}
+    \frametitle{Watchpoints}
+    \framesubtitle{When you have no idea when, where, or how}
+    \begin{itemize}
+        \item Watchpoints trigger whenever a given variable \textit{or expression}\footnote[frame]{This is most relevant if you know how to use pointers, who does?} changes
+        \item Less intuitive to set than a breakpoint
+        \item More technical limitations than breakpoints
+        \item Can be implemented in both hardware and software, use software with\linebreak\code{(gdb) set can-use-hw-watchpoints 0}\footnote[frame]{You might need to do this if using WSL}
+    \end{itemize}
+\end{frame}
+\begin{frame}
+    \frametitle{Setting a Watchpoint}
+    \begin{itemize}
+        \item Open / compile / run \code{hasglobals.c}\footnote[]{Of course, watchpoints work on local vars too, but less clear to explain}
+        \item Try setting a watchpoint on \code{globalvar} \pause -- \code{(gdb) watch globalVar}
+        \item Try setting a watchpoint on \code{globalPtr}
+        \pause
+        \item What if we want to see when the memory it's pointing to changes instead? \pause --~\code{(gdb) watch *globalVar}
+    \end{itemize}
+\end{frame}
+\begin{frame}
+    \frametitle{Setting Less Intutitive Watchpoints}
+    \begin{itemize}
+        \item It's very obvious when you want to watch a global
+        \item What about if you want to watch a local? \pause -- Breakpoint in scope, \code{(gdb)~watch~var}
+        \item Try watching a value that doesn't exist yet: \code{globalPtr[2]}
+        \pause
+        \item GDB is fine with breakpoints that can't be read yet\footnote[frame]{The way GDB deals with situations like this reveals just how complex of a program it really is.}
+        \pause
+        \item However, there are limitations:
+        \begin{itemize}
+            \item If you change the value of globalPtr, you'll no longer be watching the same location
+            \item If you manually set a watchpoint on a memory location pointed to by globalPtr, you won't follow changes to globalPtr
+        \end{itemize}
+    \end{itemize}
+
+\end{frame}
+\begin{frame}
+    \frametitle{Explore the Call Stack}
+
+    \begin{itemize}
+        \item Go back to \code{hasfunctions.c}
+        \item Break inside \code{\fn{goodNumber}}\code{()}
+        \item Pretend you don't know which function called it, how would you find out? \pause -- \code{(gdb) bt}
+        \pause
+        \item Play around with \code{(gdb) up}
+        \item You can access local scope in any one of the \underline{frames}
+    \end{itemize}
+
+\end{frame}
+\begin{frame}
+    \frametitle{GDB Extras}
+    \begin{itemize}
+        \item \code{(gdb) list *\$pc} -- Show current location in code
+        \item \code{(gdb) save breakpoints FILENAME} -- Save \textit{all breakpoints}\footnote[frame]{For some reason this means breakpoints AND watchpoints.} to a file for later
+        \item \code{(gdb) source FILENAME} -- Recover saved breakpoints
+        \item \code{(gbd) info registers} -- See register values
+    \end{itemize}
+    
+
+\end{frame}
+\section{Extra Content}
+\begin{frame}[fragile]
+    \frametitle{Dissasembly}
+    \begin{itemize}
+        \item Find out what your computer is \textit{really} doing
+        \item Try \code{(gdb) dissasemble main}
+        \pause
+        \item Probably looks like garbage, try: \code{(gdb) set dissasembly-flavor intel}
+        \pause
+        \item Break somewhere in main, try disassembling main again \break -- You can see where the program counter is
+        \pause
+        \item Disassembly is useful when you don't have the source code but you need to figure out how something works.
+        \item May be a topic for a future event.
+    \end{itemize}
 \end{frame}
 \end{document}

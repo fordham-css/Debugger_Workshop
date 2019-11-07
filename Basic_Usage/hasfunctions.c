@@ -14,7 +14,18 @@ int* doesSomethingElse(double first, int count) {
     for(int i = 0; i < count; ++i) {
         myArr[i] = trail - first * 2;
         trail = myArr[i] + first * 3 - floor(first);
+        int g = goodNumber(trail);
+        trail = max(g, trail);
     }
+}
+
+int goodNumber(int a) {
+    int b = a % 2, c = a % 3, d = 0;
+    for (int i = 0; i < a; ++i) {
+        d += c;
+        d -= b;
+    }
+    return d;
 }
 
 int main(int argc, char** argv) {
