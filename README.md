@@ -1,7 +1,7 @@
 # CSS Debugger Workshop #
 Presentation and Materials for CS Society debugger workshop
 
-Created by Richard G. Morrill, 2019, and released to the public domain under the Creative Commons BY-SA version 4.0
+Created by Richard G. Morrill, 2019, and released to the public domain under the GPL 3.0
 
 ## Presenting ##
 The presentation is written in LaTeX, and by default, all non-LaTeX files are ignored.  When a new version of the pdfs is
